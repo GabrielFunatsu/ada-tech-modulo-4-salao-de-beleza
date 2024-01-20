@@ -56,18 +56,13 @@
         const div3 = document.getElementById("div3");
         div3.appendChild(novoBotaoSim);
 
-        div3.appendChild(novoBotaoNao);
-
         novoBotaoSim.addEventListener("click", function () {
           iniciarContagemRegressiva();
-        });
-
-        novoBotaoNao.addEventListener("click", function () {
-          confirmarHorario(horario);
         });
       }
 
       function iniciarContagemRegressiva() {
+        segundos = 10;
         const div3 = document.getElementById("div3");
 
         const contagemRegressivaElemento = document.createElement("p");
