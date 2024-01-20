@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1 id="saudacao"></h1>
+
+    <button id="botao_iniciar">Iniciar</button>
+
+    <button id="botao_reservar">Reservar Horario</button>
+    <div id="div1"></div>
+    <div id="div2"></div>
+    <div id="div3"></div>
+    <div id="div4"></div>
+
+    <script>
+      const exibirSaudacao = () => {
+        const nome = prompt("Digite seu nome: ");
+        const nomeSaudacao = document.getElementById("saudacao");
+
+        nomeSaudacao.innerHTML = `Olá ${nome}`;
+      };
+
+      function displayHorarios() {
+        const horarios = {
+          horario1: "13:00",
+          horario2: "14:00",
+          horario3: "15:00",
+        };
+
+        for (const key in horarios) {
+          const novoBotaoHorario = document.createElement("button");
+          novoBotaoHorario.textContent = horarios[key];
+          novoBotaoHorario.id = key;
+
+          const div1 = document.getElementById("div1");
+          div1.appendChild(novoBotaoHorario);
+
+          novoBotaoHorario.addEventListener("click", function () {
+            confirmarHorario(horarios[key]);
+          });
+        }
+      }
+
+      function confirmarHorario(horario) {
+        const mensagemConfirmacao = document.getElementById("div2");
+        mensagemConfirmacao.innerHTML = `Confirmado horario para as ${horario}?`;
+
+        const novoBotaoSim = document.createElement("button");
+        novoBotaoSim.textContent = "Sim";
+        novoBotaoSim.id = "sim";
+
+        const div3 = document.getElementById("div3");
+        div3.appendChild(novoBotaoSim);
+
+        div3.appendChild(novoBotaoNao);
+
+        novoBotaoSim.addEventListener("click", function () {
+          iniciarContagemRegressiva();
+        });
+
+        novoBotaoNao.addEventListener("click", function () {
+          confirmarHorario(horario);
+        });
+      }
+
+      function iniciarContagemRegressiva() {
+        const div3 = document.getElementById("div3");
+
+        const contagemRegressivaElemento = document.createElement("p");
+        div3.appendChild(contagemRegressivaElemento);
+
+        const contagemRegressiva = setInterval(function () {
+          contagemRegressivaElemento.innerHTML = `Contagem Regressiva: ${segundos} segundos`;
+
+          if (segundos === 0) {
+            clearInterval(contagemRegressiva);
+            contagemRegressivaElemento.innerHTML = "Terminamos!";
+
+            const novoBotaoPagar = document.createElement("button");
+            novoBotaoPagar.textContent = "Deseja pagar agora?";
+            novoBotaoPagar.id = "deseja_pagar";
+
+            const div4 = document.getElementById("div4");
+            div4.appendChild(novoBotaoPagar);
+            novoBotaoPagar.addEventListener("click", pagamento);
+          } else {
+            segundos--;
+          }
+        }, 1000);
+      }
+
+      function pagamento() {
+        const valorCorte = 30;
+        const valorPagamento = prompt("O valor do corte é R$ 30,00");
+
+        const troco = valorPagamento - valorCorte;
+
+        if (troco === 0) {
+          alert("Obrigado! Volte sempre!");
+        }
+
+        if (troco > 0) {
+          alert(`Obrigado! Seu troco é de R$ ${troco}`);
+        }
+
+        if (troco < 0) {
+          alert(`Está faltando R$ ${troco * -1}`);
+        }
+      }
+
+      const botaoMostrarSaudacao = document.getElementById("botao_iniciar");
+      botaoMostrarSaudacao.addEventListener("click", exibirSaudacao);
+
+      const botaoReservarHorario = document.getElementById("botao_reservar");
+      botaoReservarHorario.addEventListener("click", displayHorarios);
+    </script>
+  </body>
+</html>
