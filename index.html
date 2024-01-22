@@ -17,52 +17,82 @@
     <div id="div4"></div>
 
     <script>
+      let dataReserva; 
+      let horaReserva;
+      let selectedItem;
+
       const exibirSaudacao = () => {
         const nome = prompt("Digite seu nome: ");
-        const nomeSaudacao = document.getElementById("saudacao");
-
-        nomeSaudacao.innerHTML = `Olá ${nome}`;
+        if (/^[a-zA-Z]+$/.test(nome)){
+          const nomeSaudacao = document.getElementById("saudacao");
+          nomeSaudacao.innerHTML = `Olá ${nome}`;
+        } else {
+          alert ("Por favor, digite um nome válido")
+        }
       };
 
       function displayHorarios() {
-        const horarios = {
-          horario1: "13:00",
-          horario2: "14:00",
-          horario3: "15:00",
-        };
+        const inputDateDiv = document.createElement("div"); 
+        const inputDate = document.createElement("input");
+        inputDate.type = "date";
+        inputDate.id = "dataReserva";
+        inputDateDiv.appendChild(inputDate);
 
-        for (const key in horarios) {
-          const novoBotaoHorario = document.createElement("button");
-          novoBotaoHorario.textContent = horarios[key];
-          novoBotaoHorario.id = key;
+        const inputTimeDiv = document.createElement("div");
+        const inputTime = document.createElement("input");
+        inputTime.type = "time";
+        inputTime.id = "horaReserva";
+        inputTimeDiv.appendChild(inputTime);
 
-          const div1 = document.getElementById("div1");
-          div1.appendChild(novoBotaoHorario);
+        const selectItem = document.createElement("select");
+        selectItem.id = "selectItem";
+        const items = ["Corte", "Barba", "Tintura", "Alisamento", "Hidratação"];
+        items.forEach((item) => {
+          const option = document.createElement("option");
+          option.value = item;
+          option.text = item;
+          selectItem.appendChild(option);
+        });
 
-          novoBotaoHorario.addEventListener("click", function () {
-            confirmarHorario(horarios[key]);
-          });
-        }
+        const botaoConfirmarReserva = document.createElement("button");
+        botaoConfirmarReserva.textContent = "Confirmar Reserva";
+        botaoConfirmarReserva.id = "confirmarReserva";
+
+        const div1 = document.getElementById("div1");
+        const div2 = document.getElementById("div2");
+        div1.appendChild(inputDate);
+        div2.appendChild(inputTime);
+        div2.appendChild(selectItem)
+        div2.appendChild(botaoConfirmarReserva);
+
+        botaoConfirmarReserva.addEventListener("click", function () {
+          dataReserva = document.getElementById("dataReserva").value;
+          horaReserva = document.getElementById("horaReserva").value;
+          selectedItem = document.getElementById("selectItem").value;
+          confirmarHorario(`${dataReserva} às ${horaReserva} para ${selectedItem}`);
+        });
       }
 
+
       function confirmarHorario(horario) {
-        const mensagemConfirmacao = document.getElementById("div2");
+        const mensagemConfirmacao = document.getElementById("div3");
         mensagemConfirmacao.innerHTML = `Confirmado horario para as ${horario}?`;
 
         const novoBotaoSim = document.createElement("button");
         novoBotaoSim.textContent = "Sim";
         novoBotaoSim.id = "sim";
 
-        const div3 = document.getElementById("div3");
+        const div3 = document.getElementById("div4");
         div3.appendChild(novoBotaoSim);
 
         novoBotaoSim.addEventListener("click", function () {
           iniciarContagemRegressiva();
+          div4.removeChild(novoBotaoSim);
         });
       }
 
       function iniciarContagemRegressiva() {
-        segundos = 10;
+        let segundos = 10;
         const div3 = document.getElementById("div3");
 
         const contagemRegressivaElemento = document.createElement("p");
@@ -76,35 +106,62 @@
             contagemRegressivaElemento.innerHTML = "Terminamos!";
 
             const novoBotaoPagar = document.createElement("button");
-            novoBotaoPagar.textContent = "Deseja pagar agora?";
+            novoBotaoPagar.textContent = "Clique para pagar agora";
             novoBotaoPagar.id = "deseja_pagar";
 
             const div4 = document.getElementById("div4");
             div4.appendChild(novoBotaoPagar);
-            novoBotaoPagar.addEventListener("click", pagamento);
+            novoBotaoPagar.addEventListener("click", function() {
+              clearInterval (contagemRegressiva);
+              div1.removeChild(document.getElementById("dataReserva"));
+              div2.removeChild(document.getElementById("horaReserva"));
+              div3.removeChild(contagemRegressivaElemento);
+              div4.removeChild(novoBotaoPagar);
+              pagamento(selectedItem);
+            });
           } else {
             segundos--;
           }
         }, 1000);
       }
 
-      function pagamento() {
-        const valorCorte = 30;
-        const valorPagamento = prompt("O valor do corte é R$ 30,00");
+      function pagamento(selectedItem) {
+        const precos = {
+          "Corte": 30,
+          "Barba": 25,
+          "Tintura": 30,
+          "Alisamento": 100,
+          "Hidratação": 150
+        };
 
-        const troco = valorPagamento - valorCorte;
+        const total = precos[selectedItem];
+
+        alert(`Valor do serviço (${selectedItem}): R$ ${total.toFixed(2)}`);
+
+        let valorPagamento;
+        do {
+          valorPagamento = parseFloat(prompt(`O total a pagar é R$ ${total.toFixed(2)}. Insira o valor de pagamento:`));
+          if (isNaN(valorPagamento)) {
+            alert("Por favor, insira um valor numérico válido.");
+          } else if (valorPagamento < total) {
+            alert(`Está faltando R$ ${total - valorPagamento}. Valor inserir um pagamento maior!`);
+          }
+        } while (isNaN(valorPagamento) || valorPagamento < total);
+
+        const troco = valorPagamento - total;
 
         if (troco === 0) {
           alert("Obrigado! Volte sempre!");
+        } else {
+          alert(`Obrigado! Seu troco é de R$ ${troco.toFixed(2)}`);
         }
+        div2.innerHTML = "";
+        div3.innerHTML = "";
+        div4.innerHTML = "";
 
-        if (troco > 0) {
-          alert(`Obrigado! Seu troco é de R$ ${troco}`);
-        }
-
-        if (troco < 0) {
-          alert(`Está faltando R$ ${troco * -1}`);
-        }
+        console.log("selectedItem:", selectedItem);
+        console.log("total:", total);
+        console.log("valorPagamento:", valorPagamento);
       }
 
       const botaoMostrarSaudacao = document.getElementById("botao_iniciar");
