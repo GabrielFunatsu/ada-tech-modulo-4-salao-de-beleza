@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Agendamento de Serviços</title>
   </head>
   <body>
     <h1 id="saudacao"></h1>
 
     <button id="botao_iniciar">Iniciar</button>
 
-    <button id="botao_reservar">Reservar Horario</button>
+    <button id="botao_reservar" style="display:none">Reservar Horario</button>
     <div id="div1"></div>
     <div id="div2"></div>
     <div id="div3"></div>
@@ -20,12 +20,15 @@
       let dataReserva; 
       let horaReserva;
       let selectedItem;
+      let nome;
 
       const exibirSaudacao = () => {
-        const nome = prompt("Digite seu nome: ");
-        if (/^[a-zA-Z]+$/.test(nome)){
+        nome = prompt("Digite seu nome: ").toUpperCase();
+        if (/^[a-zA-Z ]+$/.test(nome)){
           const nomeSaudacao = document.getElementById("saudacao");
-          nomeSaudacao.innerHTML = `Olá ${nome}`;
+          nomeSaudacao.innerHTML = `Olá ${nome}! Bem-vindo ao Agendamento de Serviços.`;
+          document.getElementById("botao_reservar").style.display = "block";
+          document.getElementById("botao_iniciar").style.display = "none";
         } else {
           alert ("Por favor, digite um nome válido")
         }
@@ -76,7 +79,7 @@
 
       function confirmarHorario(horario) {
         const mensagemConfirmacao = document.getElementById("div3");
-        mensagemConfirmacao.innerHTML = `Confirmado horario para as ${horario}?`;
+        mensagemConfirmacao.innerHTML = `Confirmado horário para as ${horario}?`;
 
         const novoBotaoSim = document.createElement("button");
         novoBotaoSim.textContent = "Sim";
@@ -88,6 +91,7 @@
         novoBotaoSim.addEventListener("click", function () {
           iniciarContagemRegressiva();
           div4.removeChild(novoBotaoSim);
+          enviarAgendamentoParaBFF(nome, dataReserva, horaReserva, selectedItem);
         });
       }
 
@@ -158,17 +162,39 @@
         div2.innerHTML = "";
         div3.innerHTML = "";
         div4.innerHTML = "";
-
-        console.log("selectedItem:", selectedItem);
-        console.log("total:", total);
-        console.log("valorPagamento:", valorPagamento);
       }
+
+      function enviarAgendamentoParaBFF(nome, dataReserva, horaReserva, selectedItem) {
+       
+        fetch('http://localhost:8008/api/agendamentos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            nome: nome,
+            data: dataReserva,
+            hora: horaReserva,
+            servico: selectedItem,
+          }),
+        })
+          .then(response => response.json())
+          .then(data => {
+            console.log('Sucesso:', data);
+          })
+          .catch((error) => {
+            console.error('Erro:', error);
+            alert('Erro ao enviar agendamento. Tente novamente.');
+          });
+      }
+
 
       const botaoMostrarSaudacao = document.getElementById("botao_iniciar");
       botaoMostrarSaudacao.addEventListener("click", exibirSaudacao);
 
       const botaoReservarHorario = document.getElementById("botao_reservar");
       botaoReservarHorario.addEventListener("click", displayHorarios);
+
     </script>
   </body>
 </html>
